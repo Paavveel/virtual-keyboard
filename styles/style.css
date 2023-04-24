@@ -1,0 +1,179 @@
+.body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'Arial', sans-serif;
+  background-image: url('../assets/img/bg.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.container {
+  width: 1100px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
+.textarea {
+  display: block;
+  width: 1008px;
+  height: 200px;
+  margin: 0px auto 50px;
+  padding: 20px;
+  font-size: 1.7rem;
+  color: #6cc06d;
+  resize: none;
+  background: transparent;
+  outline: none;
+  border-radius: 5px;
+  border: 1px solid #5b59590b;
+  backdrop-filter: blur(60px);
+  box-sizing: border-box;
+}
+
+.eng,
+.rus {
+  width: 100%;
+  text-align: center;
+  line-height: 60px;
+}
+
+.caseDown,
+.caseUp,
+.shiftCaps,
+.caps {
+  display: block;
+  width: 100%;
+  min-height: 60px;
+}
+
+.hidden {
+  display: none;
+}
+
+.shortcuts {
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #e7e7e7a9;
+  backdrop-filter: blur(60px);
+  box-sizing: border-box;
+  align-self: flex-end;
+}
+
+.shortcuts-list {
+  margin: 5px 0 25px;
+  font-size: 1.2rem;
+}
+
+.attention,
+.description,
+.shortcuts-title,
+.shortcuts-list {
+  letter-spacing: 0.8px;
+  color: #6cc06d;
+}
+
+.attention {
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.description {
+  margin: 0;
+}
+
+.shortcuts-list,
+.description,
+.attention {
+  font-weight: 600;
+}
+
+.description,
+.attention {
+  font-size: 1.1rem;
+}
+
+.shortcuts-title {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.keyboard {
+  max-width: 1008px;
+  width: 100%;
+  border-radius: 5px;
+  padding: 8px;
+  backdrop-filter: blur(20px);
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+}
+
+.key {
+  width: 60px;
+  height: 60px;
+  font-size: 1.2rem;
+  color: #e7e7e7;
+  font-weight: 500;
+  background: transparent;
+  border: 1.5px solid #e7e7e7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 4px;
+  border-radius: 5px;
+  transition: 0.2s;
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.key:hover {
+  background-color: #6cc06dbd;
+  border: 1.5px solid transparent;
+}
+
+.key.active {
+  background-color: #6cc06dbd;
+  scale: 0.9;
+  border: 1.5px solid transparent;
+}
+
+.keyboard .Backspace {
+  width: 100px;
+}
+
+.keyboard .Enter {
+  width: 120px;
+}
+
+.keyboard .Tab {
+  width: 90px;
+}
+
+.keyboard .Backslash {
+  width: 70px;
+}
+
+.keyboard .CapsLock {
+  width: 108px;
+}
+
+.keyboard .ShiftLeft {
+  width: 168px;
+}
+
+.keyboard .Space {
+  width: 338px;
+}
+
+.keyboard .MetaLeft,
+.keyboard .MetaRight {
+  width: 77px;
+}
