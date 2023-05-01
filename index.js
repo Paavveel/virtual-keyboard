@@ -205,6 +205,33 @@ class Keyboard {
     }
   }
 
+  toggleLang() {
+    const setLang = function setLang() {
+      const langElements = this.keyboard.querySelectorAll(
+        `div>.${this.state.lang}`
+      );
+
+      for (let i = 0; i < langElements.length; i += 1) {
+        langElements[i].classList.toggle('hidden');
+        langElements[i]
+          .querySelector(`span.${this.state.case}`)
+          .classList.toggle('hidden');
+      }
+    }.bind(this);
+
+    setLang();
+
+    if (this.state.lang === 'eng') {
+      this.state.lang = 'rus';
+    } else {
+      this.state.lang = 'eng';
+    }
+
+    setLang();
+
+    localStorage.setItem('lang', this.state.lang);
+  }
+
   implementKeyFunction() {
     let textareaValue = this.textarea.value;
     const textareaSelectionStart = this.textarea.selectionStart;
@@ -285,9 +312,16 @@ class Keyboard {
           this.addActiveState();
           setTimeout(this.removeActiveState.bind(this), 300);
           break;
+        case 'Lang':
+          this.toggleLang();
+          break;
         default:
       }
     } else setTextareaValue();
+
+    if (this.current.event.ctrlKey && this.current.event.altKey) {
+      this.toggleLang();
+    }
   }
 
   keyDownHandler(e) {
@@ -403,8 +437,15 @@ class Keyboard {
     }
   }
 
+  initLanguage() {
+    if (localStorage.lang === 'rus') {
+      this.toggleLang();
+    }
+  }
+
   initKeyboard(template) {
     this.initDom(template);
+    this.initLanguage();
 
     document.addEventListener('keydown', this.keyDownHandler.bind(this));
     document.addEventListener('keyup', this.keyUpHandler.bind(this));
