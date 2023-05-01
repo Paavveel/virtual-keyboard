@@ -4,6 +4,13 @@ class Keyboard {
   constructor() {
     this.keyboard = null;
     this.textarea = null;
+    this.state = {
+      isShiftLeftPressed: false,
+      isShiftRightPressed: false,
+      isCapsLockPressed: false,
+      case: 'caseDown',
+      lang: 'eng',
+    };
     this.current = {
       keyElement: null,
       code: null,
@@ -161,6 +168,43 @@ class Keyboard {
     }
   }
 
+  toggleCase() {
+    const langKeyElements = this.keyboard.querySelectorAll(
+      `div>.${this.state.lang}`
+    );
+
+    for (let i = 0; i < langKeyElements.length; i += 1) {
+      const keys = langKeyElements[i].querySelectorAll('span');
+
+      for (let j = 0; j < keys.length; j += 1) {
+        const key = keys[j];
+        if (!key.classList.contains('hidden')) {
+          key.classList.add('hidden');
+        }
+      }
+
+      if (
+        (this.state.isShiftLeftPressed || this.state.isShiftRightPressed) &&
+        this.state.isCapsLockPressed
+      ) {
+        keys[3].classList.remove('hidden');
+        this.state.case = 'shiftCaps';
+      } else if (this.state.isCapsLockPressed) {
+        keys[2].classList.remove('hidden');
+        this.state.case = 'caps';
+      } else if (
+        this.state.isShiftLeftPressed ||
+        this.state.isShiftRightPressed
+      ) {
+        keys[1].classList.remove('hidden');
+        this.state.case = 'caseUp';
+      } else {
+        keys[0].classList.remove('hidden');
+        this.state.case = 'caseDown';
+      }
+    }
+  }
+
   implementKeyFunction() {
     let textareaValue = this.textarea.value;
     const textareaSelectionStart = this.textarea.selectionStart;
@@ -205,6 +249,34 @@ class Keyboard {
           this.current.char = '\n';
           setTextareaValue();
           break;
+        case 'CapsLock':
+          if (this.state.isCapsLockPressed) {
+            this.addActiveState();
+          } else {
+            this.removeActiveState();
+          }
+          this.toggleCase();
+          break;
+        case 'ShiftLeft':
+          if (
+            !this.state.isShiftLeftPressed &&
+            !this.state.isShiftRightPressed
+          ) {
+            this.addActiveState();
+            this.state.isShiftLeftPressed = true;
+            this.toggleCase();
+          }
+          break;
+        case 'ShiftRight':
+          if (
+            !this.state.isShiftLeftPressed &&
+            !this.state.isShiftRightPressed
+          ) {
+            this.addActiveState();
+            this.state.isShiftRightPressed = true;
+            this.toggleCase();
+          }
+          break;
         case 'MetaLeft':
           this.addActiveState();
           setTimeout(this.removeActiveState.bind(this), 300);
@@ -226,6 +298,10 @@ class Keyboard {
     [this.current.keyElement] = this.keyboard.getElementsByClassName(e.code);
 
     if (this.current.keyElement) {
+      if (this.current.code === 'CapsLock' && e.getModifierState('CapsLock')) {
+        this.state.isCapsLockPressed = true;
+      }
+
       this.current.char =
         this.current.keyElement.querySelectorAll(
           ':not(.hidden)'
@@ -248,8 +324,25 @@ class Keyboard {
     [this.current.keyElement] = this.keyboard.getElementsByClassName(e.code);
 
     if (this.current.keyElement) {
+      if (this.current.code === 'CapsLock' && !e.getModifierState('CapsLock')) {
+        this.state.isCapsLockPressed = false;
+        this.implementKeyFunction();
+      }
+
       if (e.code !== 'CapsLock') {
         this.removeActiveState();
+      }
+
+      if (e.code === 'ShiftLeft') {
+        this.state.isShiftLeftPressed = false;
+        this.removeActiveState();
+        this.toggleCase();
+      }
+
+      if (e.code === 'ShiftRight') {
+        this.state.isShiftRightPressed = false;
+        this.removeActiveState();
+        this.toggleCase();
       }
     }
   }
@@ -260,6 +353,10 @@ class Keyboard {
       this.current.keyElement = e.target.closest('div');
       [, this.current.code] = this.current.keyElement.classList;
       this.current.char = e.target.textContent;
+
+      if (this.current.code === 'CapsLock') {
+        this.state.isCapsLockPressed = !this.state.isCapsLockPressed;
+      }
 
       if (this.current.code !== 'CapsLock') {
         this.addActiveState();
@@ -289,6 +386,19 @@ class Keyboard {
 
       if (this.current.code !== 'CapsLock') {
         this.removeActiveState();
+      }
+
+      if (this.state.isShiftLeftPressed && this.current.code === 'ShiftLeft') {
+        this.state.isShiftLeftPressed = false;
+        this.toggleCase();
+      }
+
+      if (
+        this.state.isShiftRightPressed &&
+        this.current.code === 'ShiftRight'
+      ) {
+        this.state.isShiftRightPressed = false;
+        this.toggleCase();
       }
     }
   }
