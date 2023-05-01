@@ -12,6 +12,7 @@ const keyboardTemplate = {
     'ControlRight',
     'MetaLeft',
     'MetaRight',
+    'Lang',
   ],
   rows: [
     [
@@ -703,14 +704,14 @@ const keyboardTemplate = {
     ],
     [
       {
-        className: 'Fn',
+        className: 'Lang',
         eng: {
-          caseDown: 'Fn',
-          caseUp: 'Fn',
+          caseDown: 'ENG',
+          caseUp: 'ENG',
         },
         rus: {
-          caseDown: 'Fn',
-          caseUp: 'Fn',
+          caseDown: 'RU',
+          caseUp: 'RU',
         },
       },
       {
