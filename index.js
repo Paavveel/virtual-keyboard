@@ -4,6 +4,12 @@ class Keyboard {
   constructor() {
     this.keyboard = null;
     this.textarea = null;
+    this.current = {
+      keyElement: null,
+      code: null,
+      event: null,
+      char: null,
+    };
   }
 
   initDom(template) {
@@ -71,14 +77,14 @@ class Keyboard {
         'beforeEnd',
         `<span class="caseDown${isEng ? '' : ' hidden'}">${
           isEng ? key.eng.caseDown : key.rus.caseDown
-        }</span>`,
+        }</span>`
       );
 
       spanElement.insertAdjacentHTML(
         'beforeEnd',
         `<span class="caseUp hidden">${
           isEng ? key.eng.caseUp : key.rus.caseUp
-        }</span>`,
+        }</span>`
       );
 
       spanElement.insertAdjacentHTML(
@@ -87,7 +93,7 @@ class Keyboard {
           isEng
             ? key.eng.caps || key.eng.caseUp
             : key.rus.caps || key.rus.caseUp
-        }</span>`,
+        }</span>`
       );
 
       spanElement.insertAdjacentHTML(
@@ -96,7 +102,7 @@ class Keyboard {
           isEng
             ? key.eng.shiftCaps || key.eng.caseDown
             : key.rus.shiftCaps || key.rus.caseDown
-        }</span>`,
+        }</span>`
       );
 
       return spanElement;
@@ -130,8 +136,114 @@ class Keyboard {
     document.body.prepend(rootContainer);
   }
 
+  addActiveState() {
+    this.current.keyElement.classList.add('active');
+  }
+
+  removeActiveState() {
+    if (this.current.keyElement) {
+      this.current.keyElement.classList.remove('active');
+    }
+  }
+
+  implementKeyFunction() {
+    let textareaValue = this.textarea.value;
+    const textareaSelectionStart = this.textarea.selectionStart;
+    const setTextareaValue = function setNewText() {
+      if (
+        textareaSelectionStart >= 0 &&
+        textareaSelectionStart <= textareaValue.length
+      ) {
+        this.textarea.value =
+          textareaValue.slice(0, textareaSelectionStart) +
+          this.current.char +
+          textareaValue.slice(textareaSelectionStart, textareaValue.length);
+        this.textarea.selectionStart =
+          textareaSelectionStart + this.current.char.length;
+        this.textarea.selectionEnd =
+          textareaSelectionStart + this.current.char.length;
+      } else {
+        this.textarea.value += this.current.char;
+      }
+    }.bind(this);
+
+    if (keyboardTemplate.specials.includes(this.current.code)) {
+      switch (this.current.code) {
+        case 'Backspace':
+          if (
+            textareaSelectionStart > 0 &&
+            textareaSelectionStart <= textareaValue.length
+          ) {
+            textareaValue =
+              textareaValue.slice(0, textareaSelectionStart - 1) +
+              textareaValue.slice(textareaSelectionStart, textareaValue.length);
+            this.textarea.value = textareaValue;
+            this.textarea.selectionStart = textareaSelectionStart - 1;
+            this.textarea.selectionEnd = textareaSelectionStart - 1;
+          }
+          break;
+        case 'Tab':
+          this.current.char = '    ';
+          setTextareaValue();
+          break;
+        case 'Enter':
+          this.current.char = '\n';
+          setTextareaValue();
+          break;
+        case 'MetaLeft':
+          this.addActiveState();
+          setTimeout(this.removeActiveState.bind(this), 300);
+          break;
+        case 'MetaRight':
+          this.addActiveState();
+          setTimeout(this.removeActiveState.bind(this), 300);
+          break;
+        default:
+      }
+    } else setTextareaValue();
+  }
+
+  keyDownHandler(e) {
+    e.preventDefault();
+    this.current.event = e;
+    this.current.code = e.code;
+
+    [this.current.keyElement] = this.keyboard.getElementsByClassName(e.code);
+
+    if (this.current.keyElement) {
+      this.current.char =
+        this.current.keyElement.querySelectorAll(
+          ':not(.hidden)'
+        )[1].textContent;
+
+      this.implementKeyFunction();
+
+      if (
+        !['CapsLock', 'ShiftLeft', 'ShiftRight'].includes(this.current.code)
+      ) {
+        this.addActiveState();
+      }
+    }
+  }
+
+  keyUpHandler(e) {
+    this.current.event = e;
+    this.current.code = e.code;
+
+    [this.current.keyElement] = this.keyboard.getElementsByClassName(e.code);
+
+    if (this.current.keyElement) {
+      if (e.code !== 'CapsLock') {
+        this.removeActiveState();
+      }
+    }
+  }
+
   initKeyboard(template) {
     this.initDom(template);
+
+    document.addEventListener('keydown', this.keyDownHandler.bind(this));
+    document.addEventListener('keyup', this.keyUpHandler.bind(this));
   }
 }
 
