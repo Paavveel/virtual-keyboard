@@ -10,6 +10,12 @@ class Keyboard {
       event: null,
       char: null,
     };
+    this.previous = {
+      keyElement: null,
+      code: null,
+      event: null,
+      char: null,
+    };
   }
 
   initDom(template) {
@@ -144,6 +150,15 @@ class Keyboard {
     if (this.current.keyElement) {
       this.current.keyElement.classList.remove('active');
     }
+
+    if (
+      this.previous.keyElement &&
+      this.previous.keyElement.classList.contains('active') &&
+      !['CapsLock', 'ShiftLeft', 'ShiftRight'].includes(this.previous.code)
+    ) {
+      this.previous.keyElement.classList.remove('active');
+      this.current.keyElement.classList.remove('active');
+    }
   }
 
   implementKeyFunction() {
@@ -239,11 +254,56 @@ class Keyboard {
     }
   }
 
+  mouseDownHandler(e) {
+    if (e.target.tagName === 'SPAN') {
+      this.current.event = e;
+      this.current.keyElement = e.target.closest('div');
+      [, this.current.code] = this.current.keyElement.classList;
+      this.current.char = e.target.textContent;
+
+      if (this.current.code !== 'CapsLock') {
+        this.addActiveState();
+      }
+
+      this.previous = {
+        ...this.current,
+      };
+
+      this.implementKeyFunction();
+      e.preventDefault();
+    }
+  }
+
+  mouseUpHandler(e) {
+    this.current.event = e;
+    this.current.keyElement = e.target.closest('div');
+
+    if (this.current.keyElement) {
+      if (this.current.keyElement.classList.contains('key')) {
+        [, this.current.code] = this.current.keyElement.classList;
+      } else {
+        this.current = {
+          ...this.previous,
+        };
+      }
+
+      if (this.current.code !== 'CapsLock') {
+        this.removeActiveState();
+      }
+    }
+  }
+
   initKeyboard(template) {
     this.initDom(template);
 
     document.addEventListener('keydown', this.keyDownHandler.bind(this));
     document.addEventListener('keyup', this.keyUpHandler.bind(this));
+
+    this.keyboard.addEventListener(
+      'mousedown',
+      this.mouseDownHandler.bind(this)
+    );
+    document.addEventListener('mouseup', this.mouseUpHandler.bind(this));
   }
 }
 
